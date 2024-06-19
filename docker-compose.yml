@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+    game:
+        image: node:20.12.2-alpine3.19
+        restart: unless-stopped
+        working_dir: /game
+        volumes:
+            - ./game:/game
+        entrypoint: /bin/sh -c "sh entrypoint.sh; sleep infinity"
+        networks:
+            - docker
+    web_server:
+        image: nginx:1.21.4-alpine
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - ./nginx:/var/www/
+        ports:
+            - '80:80'
+            - '443:443'
+        networks:
+            - docker
+volumes:
+    db_data:
+networks:
+    docker:
+        driver: bridge

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+    db:
+        image: mysql:latest
+        container_name: mysql_container
+        environment:
+            MYSQL_ROOT_PASSWORD: '00000000'
+            MYSQL_DATABASE: snake
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+        ports:
+            - '3306:3306'
+        volumes:
+            - db_data:/var/lib/mysql
+            - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+        networks:
+            - docker
+    game:
+        image: node:20.12.2-alpine3.19
+        restart: unless-stopped
+        working_dir: /game
+        volumes:
+            - ./game:/game
+        entrypoint: /bin/sh -c "sh entrypoint.sh; sleep infinity"
+        depends_on:
+            - db
+        networks:
+            - docker
+    web_server:
+        image: nginx:1.21.4-alpine
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - ./nginx:/var/www/
+        ports:
+            - '81:80'
+        networks:
+            - docker
+volumes:
+    db_data:
+networks:
+    docker:
+        driver: bridge
