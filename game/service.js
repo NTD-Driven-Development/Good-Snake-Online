@@ -111,11 +111,15 @@ const sendGameEndToLobby = async (roomId) => {
 	const data = {
 		gameUrl: `${process.env.DOMAIN}/?roomId=${roomId}`,
 	};
+	console.log('Send Game End to: ', url);
+	console.log(data);
 	try {
 		return await fetch(url, {
 			method: 'POST',
 			body: JSON.stringify(data),
-			keepalive: false,
+			headers: {
+				'Content-Type': 'application/json',
+			},
 		});
 	} catch (error) {
 		console.error('Error:', error);
